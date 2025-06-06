@@ -23,6 +23,8 @@ Electron wrapper for ChatGPT (https://chat.openai.com)
   
   Like temporary chat, this setting is saved but only applied **on app startup**.
 
+> ℹ️ Press `Alt` to open the settings menu.
+
 ## Installation
 
 Download prebuilt installers from the [Releases page](https://github.com/chillcarne/chatgpt-wrapper/releases):
