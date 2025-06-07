@@ -62,6 +62,8 @@ function buildModelSubmenu() {
 
 // Create menu
 function createMenu() {
+    const isMac = process.platform === 'darwin';
+
     const template = [
         {
             label: 'GPT Features',
@@ -103,7 +105,17 @@ function createMenu() {
                     }
                 },
                 {
+                    label: 'Reload page',
+                    accelerator: 'F5',
+                    click: () => {
+                        if (mainWindow && mainWindow.webContents) {
+                            mainWindow.webContents.reload();
+                        }
+                    }
+                },
+                {
                     label: 'Reload window',
+                    accelerator: isMac ? 'Cmd+Shift+R' : 'Ctrl+Shift+R',
                     click: () => {
                         if (mainWindow) {
                             mainWindow.close();
