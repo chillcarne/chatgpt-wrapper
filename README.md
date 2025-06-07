@@ -23,6 +23,13 @@ Electron wrapper for ChatGPT (https://chat.openai.com)
   
   Like temporary chat, this setting is saved but only applied **on app startup**.
 
+- **Open external links in default browser**  
+  When enabled, any link that points to a domain outside the app’s internal domains will open in your system’s default web browser instead of within the app window.  
+  
+  This setting is saved and applied immediately.  
+  
+  The list of internal domains can be modified manually in the configuration file (`settings.json`).
+
 > ℹ️ Press `Alt` to open the settings menu.
 
 ## Installation

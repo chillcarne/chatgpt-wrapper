@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-wrapper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Electron wrapper for ChatGPT (https://chat.openai.com)",
   "main": "main.js",
   "author": "Chillcarne <https://github.com/chillcarne/chatgpt-wrapper>",
