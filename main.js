@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog } = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
 const { URL } = require('url');
 const path = require('path');
 const fs = require('fs');
@@ -20,10 +20,17 @@ const availableModels = [
 
 // Base variables
 let mainWindow;
-let settings = {
+let defaultSettings = {
     temporaryChat: false,
     model: 'default',
-    readyToShow: true
+    readyToShow: true,
+    externalLinksInBrowser: true,
+    internalDomains: [
+        'openai.com',
+        'auth.openai.com',
+        'chat.openai.com',
+        'chatgpt.com',
+    ],
 };
 
 // Load settings
@@ -32,6 +39,7 @@ function loadSettings() {
         if (fs.existsSync(settingsPath)) {
             const data = fs.readFileSync(settingsPath);
             settings = JSON.parse(data);
+            ensureSettingsConsistency();
         }
     } catch (e) {
         console.error('Error reading settings:', e);
@@ -44,6 +52,22 @@ function saveSettings() {
         fs.writeFileSync(settingsPath, JSON.stringify(settings));
     } catch (e) {
         console.error('Error saving settings:', e);
+    }
+}
+
+// Add missing keys from defaultSettings
+function ensureSettingsConsistency() {
+    let changed = false;
+
+    Object.keys(defaultSettings).forEach(key => {
+        if (!settings.hasOwnProperty(key)) {
+            settings[key] = defaultSettings[key];
+            changed = true;
+        }
+    });
+
+    if (changed) {
+        saveSettings();
     }
 }
 
@@ -62,6 +86,8 @@ function buildModelSubmenu() {
 
 // Create menu
 function createMenu() {
+    const isMac = process.platform === 'darwin';
+
     const template = [
         {
             label: 'GPT Features',
@@ -103,7 +129,26 @@ function createMenu() {
                     }
                 },
                 {
+                    label: 'Open external links in default browser',
+                    type: 'checkbox',
+                    checked: settings.externalLinksInBrowser,
+                    click: (menuItem) => {
+                        settings.externalLinksInBrowser = menuItem.checked;
+                        saveSettings();
+                    }
+                },
+                {
+                    label: 'Reload page',
+                    accelerator: 'F5',
+                    click: () => {
+                        if (mainWindow && mainWindow.webContents) {
+                            mainWindow.webContents.reload();
+                        }
+                    }
+                },
+                {
                     label: 'Reload window',
+                    accelerator: isMac ? 'Cmd+Shift+R' : 'Ctrl+Shift+R',
                     click: () => {
                         if (mainWindow) {
                             mainWindow.close();
@@ -122,7 +167,7 @@ function createMenu() {
                     title: '',
                     message: 'ChatGPT Wrapper',
                     detail: [
-                        'Version: 1.0.3',
+                        'Version: 1.0.4',
                         'Author: Chillcarne',
                         'GitHub: https://github.com/chillcarne/chatgpt-wrapper'
                     ].join('\n'),
@@ -163,6 +208,23 @@ function createWindow() {
             contextIsolation: true,
         },
     });
+
+    // Intercept attempts to open a new window
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (settings.externalLinksInBrowser) {
+            const targetUrl = new URL(url);
+
+            if (!settings.internalDomains.includes(targetUrl.hostname)) {
+                shell.openExternal(url);  // Open in default browser
+                return { action: 'deny' };
+            }
+
+            return { action: 'allow' };
+        } else {
+            return { action: 'allow' }
+        }
+    });
+
 
     // Ready-to-show and maximize
     if (settings.readyToShow) {
