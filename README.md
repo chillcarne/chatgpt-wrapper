@@ -8,6 +8,9 @@ Electron wrapper for ChatGPT (https://chat.openai.com)
   Launches ChatGPT in temporary chat mode by appending `?temporary-chat=true` to the URL.  
   The setting is saved between sessions but applied **only when the app starts**.
 
+- **Continue where you left off**  
+  Automatically reopens the last open chat on next launch instead of starting from the default ChatGPT homepage.
+
 - **Default model selection on launch**  
   Choose a default GPT model to load on startup by appending `?model=...` to the URL.  
   Available models:

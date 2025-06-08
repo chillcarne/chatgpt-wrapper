@@ -181,7 +181,7 @@ function createMenu() {
                     title: '',
                     message: 'ChatGPT Wrapper',
                     detail: [
-                        'Version: 1.0.4',
+                        'Version: 1.0.5',
                         'Author: Chillcarne',
                         'GitHub: https://github.com/chillcarne/chatgpt-wrapper'
                     ].join('\n'),
