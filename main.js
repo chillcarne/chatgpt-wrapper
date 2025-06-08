@@ -20,6 +20,7 @@ const availableModels = [
 
 // Base variables
 let mainWindow;
+let settings = {};
 let defaultSettings = {
     temporaryChat: false,
     model: 'default',
@@ -40,6 +41,9 @@ function loadSettings() {
             const data = fs.readFileSync(settingsPath);
             settings = JSON.parse(data);
             ensureSettingsConsistency();
+        } else {
+            settings = { ...defaultSettings };
+            saveSettings();
         }
     } catch (e) {
         console.error('Error reading settings:', e);
