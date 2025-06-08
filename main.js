@@ -32,6 +32,7 @@ let defaultSettings = {
         'chat.openai.com',
         'chatgpt.com',
     ],
+    openRecentChatOnStartup: false,
 };
 
 // Load settings
@@ -102,6 +103,15 @@ function createMenu() {
                     checked: settings.temporaryChat,
                     click: (menuItem) => {
                         settings.temporaryChat = menuItem.checked;
+                        saveSettings();
+                    }
+                },
+                {
+                    label: 'Continue where you left off',
+                    type: 'checkbox',
+                    checked: settings.openRecentChatOnStartup,
+                    click: (menuItem) => {
+                        settings.openRecentChatOnStartup = menuItem.checked;
                         saveSettings();
                     }
                 },
@@ -186,16 +196,18 @@ function createMenu() {
 
 // Create window
 function createWindow() {
-    const baseUrl = 'https://chat.openai.com';
+    const baseUrl = settings.openRecentChatOnStartup && settings.lastURL
+        ? settings.lastURL
+        : 'https://chat.openai.com';
     const url = new URL(baseUrl);
 
     // Check if temporary chat is needed
-    if (settings.temporaryChat) {
+    if (settings.temporaryChat && !settings.openRecentChatOnStartup) {
         url.searchParams.set('temporary-chat', 'true');
     }
 
     // Check default model
-    if (settings.model && settings.model !== 'default') {
+    if (settings.model && settings.model !== 'default' && !settings.openRecentChatOnStartup) {
         url.searchParams.set('model', settings.model);
     }
 
@@ -244,6 +256,14 @@ function createWindow() {
         }
     }
 
+    // Event to save recent chat URL
+    const wc = mainWindow.webContents;
+    wc.on('did-navigate-in-page', (event, url) => {
+        if (url.startsWith("https://chatgpt.com/")) {
+            settings.lastURL = url;
+            saveSettings();
+        }
+    });
 
     // Load URL
     mainWindow.loadURL(url.toString());
